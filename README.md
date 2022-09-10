@@ -8,3 +8,5 @@ TODO:
 -Comments explaining how the code works
 -Automated testing for each of the conditions
 -Docker packaging
+-SQL comments to explain how the queries work
+-Format the password_history table to store salted hashes to store passwords more securely (plain text is NEVER a good idea)
