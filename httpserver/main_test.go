@@ -13,24 +13,28 @@ import (
 	"testing"
 )
 
+// This type is wrapped in a method to test when the body of each endpoint is unable to be read
 type bodyReadError int
 
 func (bodyReadError) Read(p []byte) (n int, err error) {
 	return 0, errors.New("Body read error")
 }
 
+// Make sure the outputted HTTP response code matches the expected code
 func responseCodeTest(test *testing.T, responseCode int, expectedResponseCode int) {
 	if responseCode != expectedResponseCode {
 		test.Error("Incorrect HTTP response code: expected " + strconv.Itoa(expectedResponseCode) + ", received " + strconv.Itoa(responseCode))
 	}
 }
 
+// Make sure the response string matches the expected output string, if one is provided
 func responseStringTest(test *testing.T, responseString string, expectedString string) {
 	if responseString != expectedString {
 		test.Error("Incorrect HTTP response string: expected " + expectedString + ", received " + responseString)
 	}
 }
 
+// Test the postJson endpoint to ensure everything outputs as expected
 func postJsonTest(test *testing.T, jsonFile string, responseCode int, responseString string) {
 	openedJsonFile, openErr := os.Open(jsonFile)
 
@@ -47,6 +51,9 @@ func postJsonTest(test *testing.T, jsonFile string, responseCode int, responseSt
 	responseStringTest(test, responseRecorder.Body.String(), responseString)
 }
 
+// Test the postJpegToPng endpoint to ensure everything outputs as expected
+// The method includes a special test case if the HTTP response code is expected to be 200
+// If the output is expected to be a PNG file, the method will test to see if the file actually exists
 func postJpegToPngTest(test *testing.T, jpegFile string, responseCode int, responseString string) {
 	openedJpegFile, openErr := os.ReadFile(jpegFile)
 
@@ -57,12 +64,14 @@ func postJpegToPngTest(test *testing.T, jpegFile string, responseCode int, respo
 	responseRecorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodPost, "/jpeg-to-png", bytes.NewReader(openedJpegFile))
 
+	// The Content-type is not automatically set for this endpoint in tests, so it has to be set manually
 	request.Header.Set("Content-type", "application/x-www-form-urlencoded")
 
 	postJpegToPng(responseRecorder, request)
 	responseCodeTest(test, responseRecorder.Code, responseCode)
 
 	if responseCode == http.StatusOK {
+		// Output the PNG data to a file and ensure no errors occur
 		pngPath := strings.TrimSuffix(jpegFile, filepath.Ext(jpegFile)) + ".png"
 		pngImage, decodeErr := png.Decode(bytes.NewReader(responseRecorder.Body.Bytes()))
 		pngFile, createErr := os.Create(pngPath)
@@ -80,14 +89,17 @@ func postJpegToPngTest(test *testing.T, jpegFile string, responseCode int, respo
 			test.Fatal("Error encoding PNG image: " + decodeErr.Error())
 		}
 
+		// Check that the file actually exists
 		_, statErr := os.Stat(pngPath)
 
 		if errors.Is(statErr, os.ErrNotExist) {
 			test.Error("Expected PNG file " + pngPath + " does not exist")
 		} else if statErr != nil {
+			// This is an edge case that will handle any other errors that might occur using the os.Stat method
 			test.Fatal("Error getting FileInfo: " + statErr.Error())
 		}
 	} else {
+		// Output to string if HTTP response code is not 200
 		responseStringTest(test, responseRecorder.Body.String(), responseString)
 	}
 }
@@ -158,6 +170,7 @@ func TestPostJpegToPng(test *testing.T) {
 	postJpegToPngTest(test, "./files/images/cat.jpg", http.StatusOK, "")
 	postJpegToPngTest(test, "./files/images/jpg-vs-jpeg.jpg", http.StatusOK, "")
 	postJpegToPngTest(test, "./files/images/twitter-camera.jpeg", http.StatusOK, "")
+	postJpegToPngTest(test, "./files/images/square.jpg", http.StatusOK, "")
 }
 
 func TestPostJpegToPngIncorrectMethod(test *testing.T) {
