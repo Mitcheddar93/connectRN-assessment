@@ -1,0 +1,8 @@
+.git
+.github
+sql
+.dockerignore
+.gitignore
+Dockerfile*
+docker-compose*
+README.md
