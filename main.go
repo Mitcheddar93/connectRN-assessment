@@ -140,8 +140,13 @@ func postJson(responseWriter http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		// Set the RFC time output to show Eastern Standard Time (time will be set to Eastern Daylight Time depending on region and current date)
-		location, loadLocationErr := time.LoadLocation("EST")
+		// Set the RFC time output to show Eastern Standard Time
+		// Packaging in Docker prevents location from being loaded since required files (zoneinfo) are not included
+		location := time.FixedZone("EST", -60*60*5)
+		createdOn = createdOn.In(location)
+
+		// If the program is not packaged, this would be used instead
+		/* location, loadLocationErr := time.LoadLocation("EST")
 
 		if loadLocationErr != nil {
 			fmt.Println("Error getting EST location: ", loadLocationErr)
@@ -153,7 +158,7 @@ func postJson(responseWriter http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		createdOn = createdOn.In(location)
+		createdOn = createdOn.In(location) */
 
 		// Prepare the UserInfo struct variable to output to the body
 		userInfo := UserInfo{
