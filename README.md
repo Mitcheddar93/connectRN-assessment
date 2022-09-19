@@ -1,10 +1,11 @@
 # connectRN-assessment
 Backend assessment for Full Stack Engineer role at connectRN.
 
-Developed in the GO programming language and tested using cURL
+Developed in the GO programming language and tested using cURL.
+
+SQL queries written in Transact-SQL (Microsoft SQL Server) and compatible with SQL Server 2017.
 
 TODO:
--More robust error checking and handling, including detecting POST requests and handling of JPEG and PNG files
 -Comments explaining how the code works
 -Automated testing for each of the conditions
 -Docker packaging
