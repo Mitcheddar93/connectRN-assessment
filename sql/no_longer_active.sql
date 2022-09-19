@@ -1,3 +1,6 @@
+--This Transact-SQL query creates a trigger that automatically updates rows with older change_date values as inactive for a user_id in the password_history table when a new row is added for a new password
+--A left join is used for the INSERTED row so that all rows except for the new one will be updated with currently_active = 0
+--A trigger for setting a new row to the current date for the change_date column, but all of the rows were set to the same date in testing (used dbfiddle.uk as testing tool)
 CREATE TRIGGER no_longer_active
 ON password_history
 AFTER INSERT

@@ -1,3 +1,5 @@
+--This Transact-SQL query automatically sets the currently_active column for any new rows added to 1
+--Research was done to see if the column can be made read-only after the new row was added, but time constraints and complexity prevented further implementation
 CREATE TRIGGER currently_active
 ON password_history
 AFTER INSERT
