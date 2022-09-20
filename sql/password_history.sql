@@ -2,7 +2,7 @@
 --Unsure if a similar command exists in MySQL
 CREATE TABLE password_history (
   	user_id INT FOREIGN KEY REFERENCES users(user_id) ON DELETE CASCADE,
-  	password NVARCHAR(MAX) NOT NULL,
+  	password VARBINARY(40) NOT NULL,
   	change_date DATETIME NOT NULL,
   	currently_active BIT
 );
